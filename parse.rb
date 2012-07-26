@@ -4,7 +4,7 @@
 require 'parslet'
 include Parslet
 
-class RegexpParser < Parslet::Parser
+class MyRegexpParser < Parslet::Parser
   # Single character rules
   rule(:lparen)     { str('(') }
   rule(:rparen)     { str(')') }
@@ -96,7 +96,7 @@ def make_union_tree(unions)
   Union.new(unions[0], make_union_tree(unions[1..-1]))
 end
 
-class RegexpTransformer < Parslet::Transform
+class MyRegexpTransform < Parslet::Transform
   rule(:value => subtree(:value),
        :star => '*')  { Closure.new(value) }
   rule(:value => subtree(:value),

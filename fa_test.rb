@@ -34,11 +34,11 @@ class TestFa < MiniTest::Unit::TestCase
 
     nfa = NFA.new([r, s, t], ['0', '1', '2'], r, [t])
 
-    assert_equal [r, s, t], nfa.get_states_can_be_e_moved([r])
-    assert_equal [s, t], nfa.get_states_can_be_e_moved([s])
-    assert_equal [t], nfa.get_states_can_be_e_moved([t])
+    assert_equal [r, s, t], nfa.get_epsilon_closure([r])
+    assert_equal [s, t],    nfa.get_epsilon_closure([s])
+    assert_equal [t],       nfa.get_epsilon_closure([t])
 
-    dfa = nfa.convert_to_dfa
+    dfa = nfa.to_dfa
 
     assert_same true, dfa.process('012')
     assert_same false, dfa.process('021')

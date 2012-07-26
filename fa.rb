@@ -92,7 +92,7 @@ class NFA
     @acceptings = acceptings
   end
 
-  def get_states_can_be_e_moved(states)
+  def get_epsilon_closure(states)
     result = SortedSet.new(states)
     states = states.to_a
 
@@ -120,37 +120,37 @@ class NFA
     dfa_acceptings
   end
 
-  def convert_to_dfa
-    dfa_hash = {}
-    nfas_initial = get_states_can_be_e_moved([@initial])
+  def to_dfa
+    dfa_states = {}
+    nfas_initial = get_epsilon_closure([@initial])
     dfa_initial = DFAState.new(nfas_initial.to_a.to_s)
-    dfa_hash[nfas_initial] = dfa_initial
+    dfa_states[nfas_initial] = dfa_initial
 
-    unprocessed_nfas = [nfas_initial]
+    unprocessed_nfa_states = [nfas_initial]
 
-    while !unprocessed_nfas.empty?
-      nfas = unprocessed_nfas.shift
-      dfa = dfa_hash[nfas]
+    while !unprocessed_nfa_states.empty?
+      nfas = unprocessed_nfa_states.shift
+      dfa = dfa_states[nfas]
 
       function = {}
       @symbols.each { |sym|
-        states_can_be_moved = nfas.inject(SortedSet.new) { |states, nfa|
+        movable_states = nfas.inject(SortedSet.new) { |states, nfa|
           if nfa.has_move?(sym)
             states + nfa.function[sym]
           else
             states
           end
         }
-        states_can_be_moved = get_states_can_be_e_moved(states_can_be_moved)
-        if !dfa_hash.key?(states_can_be_moved)
-          dfa_hash[states_can_be_moved] = DFAState.new(states_can_be_moved.to_a.to_s)
-          unprocessed_nfas << states_can_be_moved
+        movable_states = get_epsilon_closure(movable_states)
+        if !dfa_states.key?(movable_states)
+          dfa_states[movable_states] = DFAState.new(movable_states.to_a.to_s)
+          unprocessed_nfa_states << movable_states
         end
-        function[sym] = dfa_hash[states_can_be_moved]
+        function[sym] = dfa_states[movable_states]
       }
       dfa.function = function
     end
-    DFA.new(dfa_hash.values, @symbols, dfa_initial, create_dfa_acceptiongs(dfa_hash))
+    DFA.new(dfa_states.values, @symbols, dfa_initial, create_dfa_acceptiongs(dfa_states))
   end
 
   def to_graph
