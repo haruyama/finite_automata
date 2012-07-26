@@ -26,7 +26,6 @@ class MyRegexpParser < Parslet::Parser
   root :expression
 end
 
-$counter = 0
 
 class Value < Struct.new(:value)
   def convert(s, f, states, symbols)
@@ -42,9 +41,10 @@ class Value < Struct.new(:value)
 end
 
 class Closure < Struct.new(:exp)
+  @@counter = 0
   def convert(s, f, states, symbols)
-    im = NFAState.new('CLOSURE:' + $counter.to_s)
-    $counter += 1
+    im = NFAState.new('CLOSURE: ' + @@counter.to_s)
+    @@counter += 1
     s.function[SYMBOL_E] ||= []
     s.function[SYMBOL_E] << im
     im.function = { SYMBOL_E => [f]}
@@ -60,9 +60,10 @@ class Closure < Struct.new(:exp)
 end
 
 class Conjunction < Struct.new(:left, :right);
+  @@counter = 0
   def convert(s, f, states, symbols)
-    im = NFAState.new('CONJECTION: ' + $counter.to_s)
-    $counter += 1
+    im = NFAState.new('CONJECTION: ' + @@counter.to_s)
+    @@counter += 1
     left.convert(s, im, states, symbols)
     right.convert(im, f, states, symbols)
     states << im

@@ -96,7 +96,6 @@ class TestFa < MiniTest::Unit::TestCase
 
   def test_regexp_009
     r = MyRegexp.new('(a+ab)*a')
-    require 'pp'
     assert_same false, r.match('')
     assert_same true,  r.match('a')
     assert_same true,  r.match('aa')
