@@ -11,7 +11,7 @@ class RegexpParser < Parslet::Parser
   rule(:plus)       { str('+') }
   rule(:star)       { str('*') }
 
-  rule(:symbol)     { match['a-b'] }
+  rule(:symbol)     { match['a-z'] }
 
   rule(:value)      { symbol | lparen >> expression >> rparen }
 
@@ -93,7 +93,7 @@ def make_union_tree(unions)
   elsif unions.size == 2
     return Union.new(unions[0], unions[1])
   end
-  Union.new(unions[0], make_conj_tree(unions[1..-1]))
+  Union.new(unions[0], make_union_tree(unions[1..-1]))
 end
 
 class RegexpTransformer < Parslet::Transform

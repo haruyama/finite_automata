@@ -96,10 +96,7 @@ class TestFa < MiniTest::Unit::TestCase
 
   def test_regexp_009
     r = MyRegexp.new('(a+ab)*a')
-#     require 'pp'
-#     pp r.gnfa
-#     print r.nfa.to_graph
-#     print r.dfa.to_graph
+    require 'pp'
     assert_same false, r.match('')
     assert_same true,  r.match('a')
     assert_same true,  r.match('aa')
@@ -109,6 +106,37 @@ class TestFa < MiniTest::Unit::TestCase
     assert_same true,  r.match('aba')
     assert_same false, r.match('bb')
     assert_same false, r.match('ba')
+  end
+
+  def test_regexp_010
+    r = MyRegexp.new('abc')
+    assert_same false, r.match('')
+    assert_same false,  r.match('a')
+    assert_same false,  r.match('ab')
+    assert_same true,  r.match('abc')
+    assert_same false, r.match('abca')
+  end
+
+  def test_regexp_011
+    r = MyRegexp.new('(a+b)+c')
+    assert_same false, r.match('')
+    assert_same true,  r.match('a')
+    assert_same false,  r.match('ab')
+    assert_same false,  r.match('abc')
+    assert_same true,  r.match('b')
+    assert_same true,  r.match('c')
+    assert_same false,  r.match('d')
+  end
+
+  def test_regexp_012
+    r = MyRegexp.new('a+b+c')
+    assert_same false, r.match('')
+    assert_same true,  r.match('a')
+    assert_same false,  r.match('ab')
+    assert_same false,  r.match('abc')
+    assert_same true,  r.match('b')
+    assert_same true,  r.match('c')
+    assert_same false,  r.match('d')
   end
 end
 
