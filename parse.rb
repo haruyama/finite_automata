@@ -62,7 +62,7 @@ end
 class Concatenation < Struct.new(:left, :right);
   @@counter = 0
   def convert(s, f, states, symbols)
-    im = NFAState.new('CONCATNATION: ' + @@counter.to_s)
+    im = NFAState.new('CONCATENATION: ' + @@counter.to_s)
     @@counter += 1
     left.convert(s, im, states, symbols)
     right.convert(im, f, states, symbols)
