@@ -15,11 +15,11 @@ class MyRegexpParser < Parslet::Parser
 
   rule(:value)      { symbol | lparen >> expression >> rparen }
 
-  rule(:closure)    { value.as(:value) >> star.maybe.as(:star) }
+  rule(:kleene_star)    { value.as(:value) >> star.maybe.as(:star) }
 
-  rule(:conjunction)    { closure.as(:clos) >> ( str('') >> closure.as(:clos) ).repeat }
+  rule(:concatenation)    { kleene_star.as(:kleene_star) >> ( str('') >> kleene_star.as(:kleene_star) ).repeat }
 
-  rule(:union)      { conjunction.as(:conj) >> ( plus >> conjunction.as(:conj)).repeat }
+  rule(:union)      { concatenation.as(:concat) >> ( plus >> concatenation.as(:concat)).repeat }
 
   rule(:expression) { union.as(:union) }
 
@@ -40,10 +40,10 @@ class Value < Struct.new(:value)
   end
 end
 
-class Closure < Struct.new(:exp)
+class KleeneStar < Struct.new(:exp)
   @@counter = 0
   def convert(s, f, states, symbols)
-    im = NFAState.new('CLOSURE: ' + @@counter.to_s)
+    im = NFAState.new('KLEENE STAR: ' + @@counter.to_s)
     @@counter += 1
     s.function[SYMBOL_E] ||= []
     s.function[SYMBOL_E] << im
@@ -59,10 +59,10 @@ class Closure < Struct.new(:exp)
   end
 end
 
-class Conjunction < Struct.new(:left, :right);
+class Concatenation < Struct.new(:left, :right);
   @@counter = 0
   def convert(s, f, states, symbols)
-    im = NFAState.new('CONJECTION: ' + @@counter.to_s)
+    im = NFAState.new('CONCATNATION: ' + @@counter.to_s)
     @@counter += 1
     left.convert(s, im, states, symbols)
     right.convert(im, f, states, symbols)
@@ -79,13 +79,13 @@ class Union < Struct.new(:left, :right)
   end
 end
 
-def make_conj_tree(conjunctions)
-  if conjunctions.size == 1
-    return conjunctions[0]
-  elsif conjunctions.size == 2
-    return Conjunction.new(conjunctions[0], conjunctions[1])
+def make_concat_tree(concatenations)
+  if concatenations.size == 1
+    return concatenations[0]
+  elsif concatenations.size == 2
+    return Concatenation.new(concatenations[0], concatenations[1])
   end
-  Conjunction.new(conjunctions[0], make_conj_tree(conjunctions[1..-1]))
+  Concatenation.new(concatenations[0], make_concat_tree(concatenations[1..-1]))
 end
 
 def make_union_tree(unions)
@@ -99,12 +99,12 @@ end
 
 class MyRegexpTransform < Parslet::Transform
   rule(:value => subtree(:value),
-       :star => '*')  { Closure.new(value) }
+       :star => '*')  { KleeneStar.new(value) }
   rule(:value => subtree(:value),
        :star => nil)  { Value.new(value) }
-  rule( :clos => subtree(:clos) ) { clos }
-  rule( :conj => simple(:conj) ) { conj }
+  rule( :kleene_star => subtree(:kleene_star) ) { kleene_star}
+  rule( :concat => simple(:concat) ) { concat }
   rule( :union => simple(:union) ) { union }
-  rule( :conj => sequence(:conj) ) { make_conj_tree(conj) }
+  rule( :concat => sequence(:concat) ) { make_concat_tree(concat) }
   rule( :union => sequence(:union) ) { make_union_tree(union) }
 end
