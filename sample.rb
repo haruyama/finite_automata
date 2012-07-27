@@ -13,3 +13,7 @@ pp r.gnfa
 print r.nfa.to_graph
 
 print r.dfa.to_graph
+
+r.nfa.to_graph(:png => 'nfa.png')
+
+r.dfa.to_graph(:png => 'dfa.png')

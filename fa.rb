@@ -31,7 +31,7 @@ class DFA
     end
   end
 
-  def to_graph
+  def to_graph(options = {})
     g = GraphViz.new( :G, :type => :digraph )
     nodes = @states.map{ |s|
       if s == @initial
@@ -53,7 +53,11 @@ class DFA
       }
     }
 
-    g.output( :dot => String )
+    if !options.empty?
+      return g.output(options)
+    else
+      return g.output( :dot => String )
+    end
 
   end
 end
@@ -153,7 +157,7 @@ class NFA
     DFA.new(dfa_states.values, @symbols, dfa_initial, create_dfa_acceptiongs(dfa_states))
   end
 
-  def to_graph
+  def to_graph(options = {})
     g = GraphViz.new( :G, :type => :digraph )
     nodes = @states.map{ |s|
       if s == @initial
@@ -177,7 +181,11 @@ class NFA
       }
     }
 
-    g.output( :dot => String )
+    if !options.empty?
+      return g.output(options)
+    else
+      return g.output( :dot => String )
+    end
 
   end
 
